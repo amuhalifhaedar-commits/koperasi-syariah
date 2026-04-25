@@ -51,12 +51,11 @@
                         <tr>
                             <th class="px-6 py-4">Tanggal Pembayaran</th>
                             <th class="px-6 py-4">Nama Anggota</th>
-                            <th class="px-6 py-4">ID Pinjaman</th>
                             <th class="px-6 py-4">Pokok Pinjaman</th>
                             <th class="px-6 py-4">Angsuran ke</th>
                             <th class="px-6 py-4">Angsuran/Bulan</th>
                             <th class="px-6 py-4 font-bold">Nominal Bayar</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
+                            <th class="px-6 py-4">Keterangan</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-gray-100">
@@ -104,11 +103,15 @@
     <script>
         checkAuth('admin');
 
+        // Declare maps first so they are available in all functions
+        let angsuranCountMap = {};
+        let pinjamanInfoMap  = {};
+
         async function loadPinjaman() {
             try {
                 const data = await apiFetch('/admin/pinjaman');
                 const select = document.getElementById('pinjaman_id');
-                // Only show approved/pendign/lunas or just active? Usually active ones.
+                // Only show pinjaman with status 'disetujui'
                 const active = data.filter(p => p.status === 'disetujui');
                 active.forEach(item => {
                     pinjamanInfoMap[item.id] = { jumlah: item.jumlah, tenor: item.tenor, bunga: item.bunga };
@@ -127,11 +130,11 @@
                 tbody.innerHTML = '';
                 
                 if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">Belum ada pembayaran angsuran</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Belum ada pembayaran angsuran</td></tr>';
                     return;
                 }
 
-                // Build map: pinjaman_id -> jumlah angsuran yang sudah dibayar
+                // Rebuild map from fresh data
                 angsuranCountMap = {};
                 data.forEach(item => {
                     angsuranCountMap[item.pinjaman_id] = (angsuranCountMap[item.pinjaman_id] || 0) + 1;
@@ -141,25 +144,15 @@
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-gray-50 transition-colors';
                     const angsuranPerBulan = (parseFloat(item.pinjaman_total) * (1 + parseFloat(item.bunga)/100 * parseInt(item.tenor))) / parseInt(item.tenor);
-                    
-                    const statusClass = item.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                                      item.status === 'ditolak' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
-
-                    let actions = '';
-                    if (item.status === 'pending') {
-                        actions = `
-                            <div class="flex gap-2 justify-center">
-                                <button onclick="approveAngsuran(${item.id})" class="text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1 rounded transition text-sm font-bold shadow-sm">Setujui</button>
-                                <button onclick="rejectAngsuran(${item.id})" class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition text-sm font-bold shadow-sm">Tolak</button>
-                            </div>
-                        `;
-                    }
 
                     tr.innerHTML = `
-                        <td class="px-6 py-4 text-gray-600">${new Date(item.tanggal).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 text-gray-600">${new Date(item.tanggal).toLocaleDateString('id-ID')}</td>
                         <td class="px-6 py-4">
                             <div class="font-medium text-gray-800">${item.nama}</div>
                             <div class="text-[10px] text-gray-400 font-mono">PINJ-${String(item.pinjaman_id).padStart(4, '0')}</div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium">
+                            Rp ${Number(item.pinjaman_total).toLocaleString('id-ID')}
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center gap-1 bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-full">
@@ -167,21 +160,18 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-gray-600 font-medium text-xs">
-                             Rp ${Math.round(angsuranPerBulan).toLocaleString('id-ID')}
+                            Rp ${Math.round(angsuranPerBulan).toLocaleString('id-ID')}
                         </td>
                         <td class="px-6 py-4">
                             <div class="font-bold text-green-600">Rp ${Number(item.jumlah_bayar).toLocaleString('id-ID')}</div>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusClass}">${item.status}</span>
                         </td>
-                        <td class="px-6 py-4">
-                             ${actions}
-                        </td>
+                        <td class="px-6 py-4 text-gray-500 text-sm">${item.keterangan || '-'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (error) {
                 console.error(error);
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Gagal memuat data</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Gagal memuat data</td></tr>';
             }
         }
 
@@ -258,9 +248,6 @@
 
         loadPinjaman();
         loadData();
-
-        let angsuranCountMap = {};  // pinjaman_id -> total angsuran yang sudah dicatat
-        let pinjamanInfoMap  = {};  // pinjaman_id -> {jumlah, tenor, bunga}
 
         function onPinjamanChange() {
             const pid = document.getElementById('pinjaman_id').value;

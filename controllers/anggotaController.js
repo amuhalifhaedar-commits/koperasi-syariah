@@ -52,14 +52,18 @@ exports.getSimpanan = async (req, res) => {
 exports.setorSimpanan = async (req, res) => {
     const { jumlah, keterangan } = req.body;
     try {
+        if (!jumlah || parseFloat(jumlah) <= 0) {
+            return res.status(400).json({ message: 'Jumlah setoran tidak valid' });
+        }
         const tanggal = new Date().toISOString().split('T')[0];
         await pool.query(
-            "INSERT INTO simpanan (anggota_id, jenis, jumlah, tanggal, keterangan, status) VALUES (?, 'pokok', ?, ?, ?, 'pending')",
+            "INSERT INTO simpanan (anggota_id, jenis, jumlah, tanggal, keterangan) VALUES (?, 'pokok', ?, ?, ?)",
             [req.user.anggota_id, jumlah, tanggal, keterangan || 'Setoran Mandiri']
         );
         res.status(201).json({ message: 'Konfirmasi setoran berhasil dikirim. Menunggu verifikasi admin.' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('setorSimpanan error:', error);
+        res.status(500).json({ message: 'Server error: ' + error.message });
     }
 };
 

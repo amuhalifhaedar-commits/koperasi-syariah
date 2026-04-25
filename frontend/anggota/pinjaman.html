@@ -127,20 +127,26 @@
         const modalContent = document.getElementById('modalContent');
         
         function openModal() {
+            if (!modal) return;
             modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.style.display = 'flex';
             setTimeout(() => {
-                modalContent.classList.remove('scale-95');
-                modalContent.classList.add('scale-100');
+                if (modalContent) {
+                    modalContent.classList.remove('scale-95');
+                    modalContent.classList.add('scale-100');
+                }
             }, 10);
         }
 
         function closeModal() {
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
+            if (!modal) return;
+            if (modalContent) {
+                modalContent.classList.remove('scale-100');
+                modalContent.classList.add('scale-95');
+            }
             setTimeout(() => {
                 modal.classList.add('hidden');
-                modal.classList.remove('flex');
+                modal.style.display = 'none';
             }, 200);
         }
 
@@ -179,7 +185,7 @@
                     tbody.appendChild(tr);
                 });
             } catch (error) {
-                document.getElementById('tablePinjaman').innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-red-500">Gagal memuat data</td></tr>';
+                document.getElementById('tablePinjaman').innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Gagal memuat data</td></tr>';
             }
         }
 

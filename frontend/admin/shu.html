@@ -123,8 +123,6 @@
             const total_shu = document.getElementById('total_shu').value;
             const tahun = document.getElementById('tahun').value;
 
-            if (!confirm(`Konfirmasi pembagian SHU sebesar Rp ${Number(total_shu).toLocaleString()} untuk tahun ${tahun}?`)) return;
-
             try {
                 await apiFetch('/admin/shu/distribute', {
                     method: 'POST',

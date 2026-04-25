@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Akun - Anggota</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-green-700 text-white min-h-screen fixed hidden md:block shadow-lg">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center shadow-inner group-hover:bg-white/30 transition-all">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <span>Area <span class="text-green-200">Anggota</span></span>
+            </h1>
+        </div>
+        <nav class="mt-4">
+            <a href="dashboard.html" class="block py-3 px-6 hover:bg-green-600 transition">Dashboard</a>
+            <a href="simpanan.html" class="block py-3 px-6 hover:bg-green-600 transition">Info Simpanan</a>
+            <a href="pinjaman.html" class="block py-3 px-6 hover:bg-green-600 transition">Pengajuan Pinjaman</a>
+            <a href="profil.html" class="block py-3 px-6 bg-green-800 border-l-4 border-green-300 font-medium">Profil Akun</a>
+            <button onclick="logout()" class="w-full text-left py-3 px-6 hover:bg-red-600 transition mt-auto block text-red-100">Logout</button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-64 p-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Profil Saya</h2>
+        
+        <div class="bg-white rounded-xl shadow border border-gray-100 mt-6 overflow-hidden max-w-2xl">
+            <div class="p-6 border-b border-gray-100 bg-gray-50 flex items-center gap-4">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex justify-center items-center text-white text-2xl font-bold border-2 border-white shadow">
+                    U
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800" id="profilNama">Memuat...</h3>
+                    <p class="text-gray-500 font-medium text-sm" id="profilEmail">Memuat...</p>
+                </div>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-gray-100 pb-4">
+                    <p class="text-gray-500 font-medium text-sm col-span-1">No. Handphone</p>
+                    <p class="text-gray-800 font-semibold col-span-2" id="profilPhone">-</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-gray-100 pb-4">
+                    <p class="text-gray-500 font-medium text-sm col-span-1">Alamat Lengkap</p>
+                    <p class="text-gray-800 font-semibold col-span-2" id="profilAlamat">-</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <p class="text-gray-500 font-medium text-sm col-span-1">Status Keanggotaan</p>
+                    <p class="text-gray-800 font-semibold col-span-2">
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full uppercase">Aktif</span>
+                    </p>
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50 border-t border-gray-100 rounded-b-xl">
+                <p class="text-sm text-gray-500 text-center">Untuk pembaruan data teknis, hubungi Administrator atau Pengurus Koperasi terkait.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        checkAuth('anggota');
+
+        async function loadProfil() {
+            try {
+                const data = await apiFetch('/anggota/profil');
+                document.getElementById('profilNama').innerText = data.nama;
+                document.getElementById('profilEmail').innerText = data.email;
+                document.getElementById('profilPhone').innerText = data.no_hp || '-';
+                document.getElementById('profilAlamat').innerText = data.alamat || '-';
+            } catch (error) {
+                console.error(error);
+                showToast('Gagal memuat profil', 'error');
+            }
+        }
+
+        loadProfil();
+    </script>
+</body>
+</html>

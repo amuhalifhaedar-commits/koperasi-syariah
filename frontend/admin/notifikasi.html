@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Notifikasi - Admin Koperasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-blue-800 text-white min-h-screen fixed hidden md:block">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center shadow-inner group-hover:bg-white/30 transition-all">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <span>Admin <span class="text-blue-300">Panel</span></span>
+            </h1>
+        </div>
+        <nav class="mt-4">
+            <a href="dashboard.html" class="block py-3 px-6 hover:bg-blue-700 transition">Dashboard</a>
+            <a href="anggota.html" class="block py-3 px-6 hover:bg-blue-700 transition">Data Anggota</a>
+            <a href="simpanan.html" class="block py-3 px-6 hover:bg-blue-700 transition">Simpanan</a>
+            <a href="pinjaman.html" class="block py-3 px-6 hover:bg-blue-700 transition">Pinjaman</a>
+            <a href="angsuran.html" class="block py-3 px-6 hover:bg-blue-700 transition">Angsuran</a>
+            <a href="shu.html" class="block py-3 px-6 hover:bg-blue-700 transition">Pembagian SHU</a>
+            <a href="notifikasi.html" class="block py-3 px-6 bg-blue-900 border-l-4 border-blue-400 font-medium">Notifikasi</a>
+            <button onclick="logout()" class="w-full text-left py-3 px-6 hover:bg-red-600 transition mt-auto block text-red-200">Logout</button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-64 p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Kirim Notifikasi</h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Form Kirim -->
+            <div class="bg-white rounded-xl shadow-sm p-6 h-fit">
+                <h3 class="text-lg font-bold mb-4 border-b pb-2">Buat Notifikasi Baru</h3>
+                <form id="notifForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Penerima</label>
+                        <select id="anggota_id" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Semua Anggota (Broadcast)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Judul Notifikasi</label>
+                        <input type="text" id="judul" required placeholder="Contoh: Info Pembayaran" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Isi Pesan</label>
+                        <textarea id="pesan" rows="4" required placeholder="Tulis pesan Anda di sini..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition shadow-md flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        Kirim Sekarang
+                    </button>
+                </form>
+            </div>
+
+            <!-- Riwayat -->
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden text-sm">
+                <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 class="text-lg font-bold">Riwayat Notifikasi Terkirim</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="bg-gray-100 text-gray-600 text-left uppercase font-semibold">
+                            <tr>
+                                <th class="px-6 py-3">Tanggal</th>
+                                <th class="px-6 py-3">Tujuan</th>
+                                <th class="px-6 py-3">Judul</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-gray-100 italic text-gray-500">
+                            <tr><td colspan="5" class="px-6 py-10 text-center">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        checkAuth('admin');
+
+        async function loadAnggota() {
+            try {
+                const data = await apiFetch('/admin/anggota');
+                const select = document.getElementById('anggota_id');
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.anggota_id;
+                    opt.innerText = item.nama;
+                    select.appendChild(opt);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadData() {
+            try {
+                const data = await apiFetch('/admin/notifikasi');
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-400">Belum ada notifikasi yang dikirim</td></tr>';
+                    return;
+                }
+
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'not-italic text-gray-800 hover:bg-gray-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-xs text-gray-500">${new Date(item.created_at).toLocaleString()}</td>
+                        <td class="px-6 py-4 font-medium">${item.nama_anggota || '<span class="text-blue-600 font-bold">BROADCAST</span>'}</td>
+                        <td class="px-6 py-4 truncate max-w-xs" title="${item.pesan}">
+                            <div class="font-bold">${item.judul}</div>
+                            <div class="text-xs text-gray-500">${item.pesan}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="${item.is_read ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'} px-2 py-1 rounded text-[10px] font-bold">
+                                ${item.is_read ? 'DIBACA' : 'TERKIRIM'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="deleteNotif(${item.id})" class="text-red-500 hover:text-red-700 bg-red-50 p-1 rounded transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-red-500">Gagal memuat data</td></tr>';
+            }
+        }
+
+        document.getElementById('notifForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                anggota_id: document.getElementById('anggota_id').value || null,
+                judul: document.getElementById('judul').value,
+                pesan: document.getElementById('pesan').value
+            };
+
+            try {
+                await apiFetch('/admin/notifikasi', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                showToast('Notifikasi berhasil dikirim!');
+                document.getElementById('notifForm').reset();
+                loadData();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        async function deleteNotif(id) {
+            if (confirm('Hapus riwayat notifikasi ini?')) {
+                try {
+                    await apiFetch(`/admin/notifikasi/${id}`, { method: 'DELETE' });
+                    showToast('Riwayat dihapus');
+                    loadData();
+                } catch (err) { showToast(err.message, 'error'); }
+            }
+        }
+
+        loadAnggota();
+        loadData();
+    </script>
+</body>
+</html>

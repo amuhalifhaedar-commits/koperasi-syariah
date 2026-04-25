@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Angsuran - Admin Koperasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-blue-800 text-white min-h-screen fixed hidden md:block">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center shadow-inner group-hover:bg-white/30 transition-all">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <span>Admin <span class="text-blue-300">Panel</span></span>
+            </h1>
+        </div>
+        <nav class="mt-4">
+            <a href="dashboard.html" class="block py-3 px-6 hover:bg-blue-700 transition">Dashboard</a>
+            <a href="anggota.html" class="block py-3 px-6 hover:bg-blue-700 transition">Data Anggota</a>
+            <a href="simpanan.html" class="block py-3 px-6 hover:bg-blue-700 transition">Simpanan</a>
+            <a href="pinjaman.html" class="block py-3 px-6 hover:bg-blue-700 transition">Pinjaman</a>
+            <a href="angsuran.html" class="block py-3 px-6 bg-blue-900 border-l-4 border-blue-400 font-medium">Angsuran</a>
+            <a href="shu.html" class="block py-3 px-6 hover:bg-blue-700 transition">Pembagian SHU</a>
+            <a href="notifikasi.html" class="block py-3 px-6 hover:bg-blue-700 transition">Notifikasi</a>
+            <button onclick="logout()" class="w-full text-left py-3 px-6 hover:bg-red-600 transition mt-auto block text-red-200">Logout</button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-64 p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Kelola Angsuran</h2>
+            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2 shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Input Angsuran
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                <h3 class="text-lg font-bold">Riwayat Pembayaran Angsuran</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full whitespace-nowrap">
+                    <thead class="bg-gray-100 text-gray-600 text-left text-sm uppercase font-semibold">
+                        <tr>
+                            <th class="px-6 py-4">Tanggal Pembayaran</th>
+                            <th class="px-6 py-4">Nama Anggota</th>
+                            <th class="px-6 py-4">ID Pinjaman</th>
+                            <th class="px-6 py-4">Pokok Pinjaman</th>
+                            <th class="px-6 py-4">Angsuran ke</th>
+                            <th class="px-6 py-4">Angsuran/Bulan</th>
+                            <th class="px-6 py-4 font-bold">Nominal Bayar</th>
+                            <th class="px-6 py-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-100">
+                        <tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal CRUD Angsuran -->
+    <div id="angsuranModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-800">Tambah Angsuran</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <form id="angsuranForm" class="p-6 space-y-4">
+                <input type="hidden" id="angsuranId">
+                <div id="pinjamanSelectSection">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Pinjaman Aktif</label>
+                    <select id="pinjaman_id" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" onchange="onPinjamanChange()">
+                        <option value="">Pilih Pinjaman...</option>
+                    </select>
+                </div>
+                <!-- Info angsuran ke berapa -->
+                <div id="angsuran_info"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Bayar (Rp)</label>
+                    <input type="number" id="jumlah_bayar" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Bayar</label>
+                    <input type="date" id="tanggal" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 rounded-lg transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition shadow-md">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        checkAuth('admin');
+
+        async function loadPinjaman() {
+            try {
+                const data = await apiFetch('/admin/pinjaman');
+                const select = document.getElementById('pinjaman_id');
+                // Only show approved/pendign/lunas or just active? Usually active ones.
+                const active = data.filter(p => p.status === 'disetujui');
+                active.forEach(item => {
+                    pinjamanInfoMap[item.id] = { jumlah: item.jumlah, tenor: item.tenor, bunga: item.bunga };
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.innerText = `${item.nama} - PINJ-${String(item.id).padStart(4, '0')} (Rp ${Number(item.jumlah).toLocaleString('id-ID')})`;
+                    select.appendChild(opt);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadData() {
+            try {
+                const data = await apiFetch('/admin/angsuran');
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">Belum ada pembayaran angsuran</td></tr>';
+                    return;
+                }
+
+                // Build map: pinjaman_id -> jumlah angsuran yang sudah dibayar
+                angsuranCountMap = {};
+                data.forEach(item => {
+                    angsuranCountMap[item.pinjaman_id] = (angsuranCountMap[item.pinjaman_id] || 0) + 1;
+                });
+
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50 transition-colors';
+                    const angsuranPerBulan = (parseFloat(item.pinjaman_total) * (1 + parseFloat(item.bunga)/100 * parseInt(item.tenor))) / parseInt(item.tenor);
+                    
+                    const statusClass = item.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                                      item.status === 'ditolak' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
+
+                    let actions = '';
+                    if (item.status === 'pending') {
+                        actions = `
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="approveAngsuran(${item.id})" class="text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1 rounded transition text-sm font-bold shadow-sm">Setujui</button>
+                                <button onclick="rejectAngsuran(${item.id})" class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition text-sm font-bold shadow-sm">Tolak</button>
+                            </div>
+                        `;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-gray-600">${new Date(item.tanggal).toLocaleDateString()}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-800">${item.nama}</div>
+                            <div class="text-[10px] text-gray-400 font-mono">PINJ-${String(item.pinjaman_id).padStart(4, '0')}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1 bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                                Ke-${item.angsuran_ke}/${item.tenor}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 font-medium text-xs">
+                             Rp ${Math.round(angsuranPerBulan).toLocaleString('id-ID')}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-green-600">Rp ${Number(item.jumlah_bayar).toLocaleString('id-ID')}</div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusClass}">${item.status}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                             ${actions}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Gagal memuat data</td></tr>';
+            }
+        }
+
+        function openModal(item = null) {
+            const modal = document.getElementById('angsuranModal');
+            const form = document.getElementById('angsuranForm');
+            const title = document.getElementById('modalTitle');
+            const selectSection = document.getElementById('pinjamanSelectSection');
+            
+            form.reset();
+            document.getElementById('angsuranId').value = '';
+            document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+            
+            if (item) {
+                title.innerText = 'Edit Angsuran';
+                document.getElementById('angsuranId').value = item.id;
+                document.getElementById('jumlah_bayar').value = item.jumlah_bayar;
+                document.getElementById('tanggal').value = new Date(item.tanggal).toISOString().split('T')[0];
+                selectSection.classList.add('hidden');
+                document.getElementById('pinjaman_id').removeAttribute('required');
+            } else {
+                title.innerText = 'Tambah Angsuran';
+                selectSection.classList.remove('hidden');
+                document.getElementById('pinjaman_id').setAttribute('required', 'required');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('angsuranModal').classList.add('hidden');
+        }
+
+        document.getElementById('angsuranForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('angsuranId').value;
+            const payload = {
+                jumlah_bayar: document.getElementById('jumlah_bayar').value,
+                tanggal: document.getElementById('tanggal').value
+            };
+
+            if (!id) payload.pinjaman_id = document.getElementById('pinjaman_id').value;
+
+            try {
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `/admin/angsuran/${id}` : '/admin/angsuran';
+                await apiFetch(url, { method, body: JSON.stringify(payload) });
+                showToast(id ? 'Angsuran diperbarui' : 'Angsuran berhasil dicatat');
+                closeModal();
+                loadData();
+            } catch (err) { showToast(err.message, 'error'); }
+        });
+
+        async function approveAngsuran(id) {
+            try {
+                await apiFetch(`/admin/angsuran/${id}/approve`, { method: 'PUT' });
+                showToast('Angsuran disetujui');
+                loadData();
+            } catch (err) { 
+                console.error("Approve Angsuran Error:", err);
+                showToast(err.message, 'error'); 
+            }
+        }
+
+        async function rejectAngsuran(id) {
+            try {
+                await apiFetch(`/admin/angsuran/${id}/reject`, { method: 'PUT' });
+                showToast('Angsuran ditolak');
+                loadData();
+            } catch (err) { 
+                console.error("Reject Angsuran Error:", err);
+                showToast(err.message, 'error'); 
+            }
+        }
+
+        loadPinjaman();
+        loadData();
+
+        let angsuranCountMap = {};  // pinjaman_id -> total angsuran yang sudah dicatat
+        let pinjamanInfoMap  = {};  // pinjaman_id -> {jumlah, tenor, bunga}
+
+        function onPinjamanChange() {
+            const pid = document.getElementById('pinjaman_id').value;
+            const infoDiv = document.getElementById('angsuran_info');
+            if (!pid || !pinjamanInfoMap[pid]) { infoDiv.innerHTML = ''; return; }
+            const info = pinjamanInfoMap[pid];
+            const existingCount = angsuranCountMap[pid] || 0;
+            const angsuranKe = existingCount + 1;
+            const totalBayar = parseFloat(info.jumlah) * (1 + parseFloat(info.bunga)/100 * parseInt(info.tenor));
+            const angsuranPerBulan = totalBayar / parseInt(info.tenor);
+            document.getElementById('jumlah_bayar').value = Math.round(angsuranPerBulan);
+            infoDiv.innerHTML = `
+                <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-sm">
+                    <p class="font-semibold text-indigo-800 mb-1">Angsuran ke-${angsuranKe} dari ${info.tenor}</p>
+                    <p class="text-gray-600">Saran bayar: <strong class="text-indigo-700">Rp ${Math.round(angsuranPerBulan).toLocaleString('id-ID')}</strong>/bulan</p>
+                    <p class="text-gray-600">Total hutang: <strong>Rp ${Math.round(totalBayar).toLocaleString('id-ID')}</strong></p>
+                    <p class="text-gray-500 text-xs mt-1">Sisa: ${info.tenor - existingCount} bulan lagi</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Simpanan - Admin Koperasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-blue-800 text-white min-h-screen fixed hidden md:block">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center shadow-inner group-hover:bg-white/30 transition-all">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <span>Admin <span class="text-blue-300">Panel</span></span>
+            </h1>
+        </div>
+        <nav class="mt-4">
+            <a href="dashboard.html" class="block py-3 px-6 hover:bg-blue-700 transition">Dashboard</a>
+            <a href="anggota.html" class="block py-3 px-6 hover:bg-blue-700 transition">Data Anggota</a>
+            <a href="simpanan.html" class="block py-3 px-6 bg-blue-900 border-l-4 border-blue-400 font-medium">Simpanan</a>
+            <a href="pinjaman.html" class="block py-3 px-6 hover:bg-blue-700 transition">Pinjaman</a>
+            <a href="angsuran.html" class="block py-3 px-6 hover:bg-blue-700 transition">Angsuran</a>
+            <a href="shu.html" class="block py-3 px-6 hover:bg-blue-700 transition">Pembagian SHU</a>
+            <a href="notifikasi.html" class="block py-3 px-6 hover:bg-blue-700 transition">Notifikasi</a>
+            <button onclick="logout()" class="w-full text-left py-3 px-6 hover:bg-red-600 transition mt-auto block text-red-200">Logout</button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-64 p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Kelola Simpanan Pokok</h2>
+            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition flex items-center gap-2 shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Tambah Simpanan
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                <h3 class="text-lg font-bold">Semua Transaksi Simpanan</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full whitespace-nowrap">
+                    <thead class="bg-gray-100 text-gray-600 text-left text-sm uppercase font-semibold">
+                        <tr>
+                            <th class="px-6 py-4">Tanggal</th>
+                            <th class="px-6 py-4">Nama Anggota</th>
+                            <th class="px-6 py-4">Jumlah</th>
+                            <th class="px-6 py-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-100">
+                        <tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal CRUD Simpanan -->
+    <div id="simpananModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="p-6 border-b bg-gray-50 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-800">Tambah Simpanan</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <form id="simpananForm" class="p-6 space-y-4">
+                <input type="hidden" id="simpananId">
+                <div id="anggotaSelectSection">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Anggota</label>
+                    <select id="anggota_id" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="">Pilih Anggota...</option>
+                    </select>
+                </div>
+                <div class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Simpanan</label>
+                    <select id="jenis" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="pokok" selected>Simpanan Pokok</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                    <input type="number" id="jumlah" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                    <input type="date" id="tanggal" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 rounded-lg transition">Batal</button>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition shadow-md">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        checkAuth('admin');
+
+        async function loadAnggota() {
+            try {
+                const data = await apiFetch('/admin/anggota');
+                const select = document.getElementById('anggota_id');
+                data.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.anggota_id;
+                    opt.innerText = item.nama;
+                    select.appendChild(opt);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadData() {
+            try {
+                const data = await apiFetch('/admin/simpanan');
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada transaksi simpanan</td></tr>';
+                    return;
+                }
+
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50 transition-colors';
+                    const statusClass = item.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                                      item.status === 'ditolak' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
+                    const statusIcon = item.status === 'pending' ? '⏳' : 
+                                     item.status === 'ditolak' ? '❌' : '✅';
+
+                    let actions = '';
+
+                    if (item.status === 'pending') {
+                        actions = `
+                            <button onclick="approveSimpanan(${item.id})" class="text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1 rounded transition text-sm font-bold shadow-sm">Setujui</button>
+                            <button onclick="rejectSimpanan(${item.id})" class="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition text-sm font-bold shadow-sm">Tolak</button>
+                        `;
+                    }
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 text-gray-600">
+                            <div>${new Date(item.tanggal).toLocaleDateString()}</div>
+                            <div class="text-[10px] text-gray-400 font-mono">#${item.id}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-800">${item.nama}</div>
+                            <div class="text-xs text-gray-500">${item.keterangan || '-'}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-gray-800">Rp ${Number(item.jumlah).toLocaleString()}</div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusClass}">${statusIcon} ${item.status}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                             <div class="flex justify-center gap-2">
+                                ${actions}
+                             </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Gagal memuat data</td></tr>';
+            }
+        }
+
+        function openModal(item = null) {
+            const modal = document.getElementById('simpananModal');
+            const form = document.getElementById('simpananForm');
+            const title = document.getElementById('modalTitle');
+            const selectSection = document.getElementById('anggotaSelectSection');
+            
+            form.reset();
+            document.getElementById('simpananId').value = '';
+            document.getElementById('tanggal').value = new Date().toISOString().split('T')[0];
+            document.getElementById('jenis').value = 'pokok';
+            
+            if (item) {
+                title.innerText = 'Edit Simpanan';
+                document.getElementById('simpananId').value = item.id;
+                document.getElementById('jumlah').value = item.jumlah;
+                document.getElementById('tanggal').value = new Date(item.tanggal).toISOString().split('T')[0];
+                selectSection.classList.add('hidden');
+                document.getElementById('anggota_id').removeAttribute('required');
+            } else {
+                title.innerText = 'Tambah Simpanan';
+                selectSection.classList.remove('hidden');
+                document.getElementById('anggota_id').setAttribute('required', 'required');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('simpananModal').classList.add('hidden');
+        }
+
+        document.getElementById('simpananForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('simpananId').value;
+            const payload = {
+                jenis: document.getElementById('jenis').value,
+                jumlah: document.getElementById('jumlah').value,
+                tanggal: document.getElementById('tanggal').value,
+                status: 'berhasil' // Default to berhasil if edited/added by admin
+            };
+
+            if (!id) payload.anggota_id = document.getElementById('anggota_id').value;
+
+            try {
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `/admin/simpanan/${id}` : '/admin/simpanan';
+                await apiFetch(url, { method, body: JSON.stringify(payload) });
+                showToast(id ? 'Simpanan diperbarui' : 'Simpanan berhasil ditambahkan');
+                closeModal();
+                loadData();
+            } catch (err) { showToast(err.message, 'error'); }
+        });
+
+        async function approveSimpanan(id) {
+            try {
+                await apiFetch(`/admin/simpanan/${id}/approve`, { method: 'PUT' });
+                showToast('Simpanan disetujui');
+                loadData();
+            } catch (err) { 
+                console.error("Approve Simpanan Error:", err);
+                showToast(err.message, 'error'); 
+            }
+        }
+
+        async function rejectSimpanan(id) {
+            try {
+                await apiFetch(`/admin/simpanan/${id}/reject`, { method: 'PUT' });
+                showToast('Simpanan ditolak');
+                loadData();
+            } catch (err) { 
+                console.error("Reject Simpanan Error:", err);
+                showToast(err.message, 'error'); 
+            }
+        }
+
+        async function deleteSimpanan(id) {
+            if (confirm('Yakin ingin menghapus transaksi simpanan ini?')) {
+                try {
+                    await apiFetch(`/admin/simpanan/${id}`, { method: 'DELETE' });
+                    showToast('Simpanan berhasil dihapus');
+                    loadData();
+                } catch (err) { showToast(err.message, 'error'); }
+            }
+        }
+
+        loadAnggota();
+        loadData();
+    </script>
+</body>
+</html>
+</body>
+</html>
